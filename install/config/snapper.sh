@@ -35,7 +35,7 @@ configure_snapper_root() {
       if [[ -f $conf_d_path && ! -L $conf_d_path ]]; then
         if grep -qE '^[[:space:]]*SNAPPER_CONFIGS=' "$conf_d_path"; then
           if ! grep -qE '^[[:space:]]*SNAPPER_CONFIGS=.*(^|[[:space:]"]|\\")root([[:space:]"]|\\"|$)' "$conf_d_path"; then
-            sed -i -E 's/^(SNAPPER_CONFIGS="?)([^"]*)("?)/\1\2 root\3/; s/  / /g; s/" root"/"root"/' "$conf_d_path"
+            sed -i -E '/^[[:space:]]*SNAPPER_CONFIGS=/{ s/^([[:space:]]*SNAPPER_CONFIGS=)"([^"]*)"[[:space:]]*$/\1"\2 root"/; s/=" root"/="root"/ }' "$conf_d_path"
           fi
         else
           echo 'SNAPPER_CONFIGS="root"' >> "$conf_d_path"
@@ -49,9 +49,6 @@ configure_snapper_root() {
           registered=$((registered + 1))
         fi
       done <<<"$configs"
-      if (( registered == 0 )) && [[ -e $snapshots_path ]]; then
-        registered=1
-      fi
     fi
   fi
 
